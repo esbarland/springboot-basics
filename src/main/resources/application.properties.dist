@@ -1,0 +1,19 @@
+spring.application.name=demo
+spring.main.web-application-type=servlet
+server.port=8080
+
+# URL de la base : remplace 'ma_base_de_donnees' par le nom de ta DB
+spring.datasource.url=jdbc:mysql://localhost:3306/database?useSSL=false&serverTimezone=UTC
+spring.datasource.username=username
+spring.datasource.password=password
+
+# Driver MySQL
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+# JPA / Hibernate
+# 'update' : crée ou modifie les tables automatiquement selon tes entités
+spring.jpa.hibernate.ddl-auto=update
+# Affiche les requêtes SQL dans la console (pratique pour débugger)
+spring.jpa.show-sql=true
+# Optimise les requêtes pour MySQL
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
