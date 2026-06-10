@@ -1,6 +1,7 @@
 package com.basics.library.book.services;
 
 import com.basics.library.book.models.BookEntity;
+import com.basics.library.book.models.exception.BookCreationException;
 import com.basics.library.book.persistence.BookRepository;
 import io.micrometer.common.util.StringUtils;
 import org.springframework.stereotype.Service;
@@ -14,17 +15,18 @@ public class BookService {
         this.repository = repository;
     }
 
-    public String createBook(String name, Integer pages) {
-        if(name == null || StringUtils.isBlank(name)) {
-            return "Le nom du livre ne dois pas être vide";
+    public String createBook(String name, Integer pages) throws BookCreationException {
+        if (name == null || StringUtils.isBlank(name)) {
+            throw new BookCreationException("Book name cannot be null or empty");
         }
-        if(pages == null || pages <= 0) {
-            return "Le livre doit contenir au moins une page";
+        if (pages == null || pages <= 0) {
+            throw new BookCreationException("The book must contains at least one page");
         }
 
         BookEntity existingBook = repository.findByNameAndPages(name, pages);
         if (existingBook != null) {
-            return "Livre déjà existant";
+            throw new BookCreationException("This book already exists");
+
         }
 
         BookEntity book = BookEntity.builder().name(name).pages(pages).build();

@@ -1,6 +1,7 @@
 package com.basics.library.book.controllers;
 
 import com.basics.library.book.dto.BookDTO;
+import com.basics.library.book.models.exception.BookCreationException;
 import com.basics.library.book.services.BookService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,7 @@ public class BookRestController {
     }
 
     @PostMapping
-    public String post(@RequestBody BookDTO.PostInput input){
+    public String post(@RequestBody BookDTO.PostInput input) throws BookCreationException {
         return service.createBook(input.getName(), input.getPages());
     }
 }
