@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Slf4j
 @RestController
 @RequestMapping("/book")
@@ -22,14 +24,31 @@ public class BookRestController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public String get(@RequestParam String name, @RequestParam Integer pages) {
-        return "OK GET";
+    public List<BookDTO.PostOutput> getAll() {
+        return service.getAllBooks().stream().map(this::toOutput).toList();
+    }
+
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public BookDTO.PostOutput getById(@PathVariable Long id) {
+        return toOutput(service.getBookById(id));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public BookDTO.PostOutput post(@Valid @RequestBody BookDTO.PostInput input) throws BookCreationException {
         BookEntity createdBook = service.createBook(input.getName(), input.getIsbn(), input.getPages(), input.getYear(), input.getDescription());
-        return BookDTO.PostOutput.builder().id(createdBook.getId()).name(createdBook.getName()).isbn(createdBook.getIsbn()).pages(createdBook.getPages()).year(createdBook.getYear()).description(createdBook.getDescription()).build();
+        return toOutput(createdBook);
+    }
+
+    private BookDTO.PostOutput toOutput(BookEntity book) {
+        return BookDTO.PostOutput.builder()
+                .id(book.getId())
+                .name(book.getName())
+                .isbn(book.getIsbn())
+                .pages(book.getPages())
+                .year(book.getYear())
+                .description(book.getDescription())
+                .build();
     }
 }

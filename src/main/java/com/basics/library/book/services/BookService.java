@@ -2,11 +2,13 @@ package com.basics.library.book.services;
 
 import com.basics.library.book.models.BookEntity;
 import com.basics.library.book.models.exception.BookCreationException;
+import com.basics.library.book.models.exception.BookNotFoundException;
 import com.basics.library.book.persistence.BookRepository;
 import io.micrometer.common.util.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.Year;
+import java.util.List;
 
 @Service
 public class BookService {
@@ -41,6 +43,15 @@ public class BookService {
 
         BookEntity book = BookEntity.builder().isbn(isbn).name(name).pages(pages).year(year).description(description).build();
         return repository.save(book);
+    }
+
+    public BookEntity getBookById(Long id) throws BookNotFoundException {
+        return repository.findById(id)
+                .orElseThrow(() -> new BookNotFoundException("No book found this id"));
+    }
+
+    public List<BookEntity> getAllBooks() {
+        return repository.findAll();
     }
 
     /**
