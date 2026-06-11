@@ -29,7 +29,7 @@ public class BookRestController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public BookDTO.PostOutput post(@Valid @RequestBody BookDTO.PostInput input) throws BookCreationException {
-        BookEntity createdBook = service.createBook(input.getName(), input.getPages());
-        return BookDTO.PostOutput.builder().id(createdBook.getId()).name(createdBook.getName()).pages(createdBook.getPages()).build();
+        BookEntity createdBook = service.createBook(input.getName(), input.getIsbn(), input.getPages(), input.getYear(), input.getDescription());
+        return BookDTO.PostOutput.builder().id(createdBook.getId()).name(createdBook.getName()).isbn(createdBook.getIsbn()).pages(createdBook.getPages()).year(createdBook.getYear()).description(createdBook.getDescription()).build();
     }
 }

@@ -17,7 +17,14 @@ public class BookEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
+    @Column(unique = true)
+    String isbn;
+
     String name;
 
+    Integer year;
+
     Integer pages;
+
+    String description;
 }

@@ -17,7 +17,16 @@ public class BookDTO {
         String name;
 
         @NotNull
+        @NotBlank
+        String isbn;
+
+        @NotNull
         Integer pages;
+
+        @NotNull
+        Integer year;
+
+        String description;
     }
 
     @Data
@@ -26,6 +35,9 @@ public class BookDTO {
     public static class PostOutput {
         Long id;
         String name;
+        String isbn;
         Integer pages;
+        Integer year;
+        String description;
     }
 }

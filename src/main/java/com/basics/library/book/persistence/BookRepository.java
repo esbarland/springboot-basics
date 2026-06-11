@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
 public interface BookRepository extends JpaRepository<BookEntity, Long> {
 
     BookEntity findByNameAndPages(String name, Integer pages);
+
+    BookEntity findByIsbn(String isbn);
 }
