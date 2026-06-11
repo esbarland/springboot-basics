@@ -15,7 +15,7 @@ public class BookService {
         this.repository = repository;
     }
 
-    public String createBook(String name, Integer pages) throws BookCreationException {
+    public BookEntity createBook(String name, Integer pages) throws BookCreationException {
         if (name == null || StringUtils.isBlank(name)) {
             throw new BookCreationException("Book name cannot be null or empty");
         }
@@ -30,7 +30,6 @@ public class BookService {
         }
 
         BookEntity book = BookEntity.builder().name(name).pages(pages).build();
-        repository.save(book);
-        return "Livre crée avec succès";
+        return repository.save(book);
     }
 }
