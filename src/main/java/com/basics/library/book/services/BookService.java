@@ -1,7 +1,7 @@
 package com.basics.library.book.services;
 
 import com.basics.library.book.models.BookEntity;
-import com.basics.library.book.models.exception.BookCreationException;
+import com.basics.library.book.models.exception.BookValidationException;
 import com.basics.library.book.models.exception.BookNotFoundException;
 import com.basics.library.book.persistence.BookRepository;
 import io.micrometer.common.util.StringUtils;
@@ -19,30 +19,51 @@ public class BookService {
         this.repository = repository;
     }
 
-    public BookEntity createBook(String name, String isbn, Integer pages, Integer year, String description) throws BookCreationException {
-        if (isbn == null || StringUtils.isBlank(isbn)) {
-            throw new BookCreationException("ISBN cannot be null or empty");
-        }
-        if (!BookService.isValidIsbn13(isbn)) {
-            throw new BookCreationException("Invalid ISBN");
-        }
-        if (name == null || StringUtils.isBlank(name)) {
-            throw new BookCreationException("Book name cannot be null or empty");
-        }
-        if (pages == null || pages <= 0) {
-            throw new BookCreationException("The book must contains at least one page");
-        }
-        if (year == null || year > Year.now().getValue()) {
-            throw new BookCreationException("The publication year cannot be later than the current year");
-        }
-
-        BookEntity existingBook = repository.findByIsbn(isbn);
-        if (existingBook != null) {
-            throw new BookCreationException("This book already exists");
-        }
-
+    public BookEntity createBook(String name, String isbn, Integer pages, Integer year, String description) throws BookValidationException {
+        validateBook(null, name, isbn, pages, year);
         BookEntity book = BookEntity.builder().isbn(isbn).name(name).pages(pages).year(year).description(description).build();
         return repository.save(book);
+    }
+
+    public BookEntity updateBook(Long id, String name, String isbn, Integer pages, Integer year, String description) throws BookNotFoundException, BookValidationException {
+        BookEntity existing = repository.findById(id)
+                .orElseThrow(() -> new BookNotFoundException("No book found with this id"));
+        validateBook(id, name, isbn, pages, year);
+        return repository.save(BookEntity.builder()
+                .id(existing.getId())
+                .isbn(isbn)
+                .name(name)
+                .pages(pages)
+                .year(year)
+                .description(description)
+                .build());
+    }
+
+    public void deleteBook(Long id) throws BookNotFoundException {
+        BookEntity book = getBookById(id);
+        repository.delete(book);
+    }
+
+    private void validateBook(Long id, String name, String isbn, Integer pages, Integer year) throws BookValidationException {
+        if (isbn == null || StringUtils.isBlank(isbn)) {
+            throw new BookValidationException("ISBN cannot be null or empty");
+        }
+        if (!BookService.isValidIsbn13(isbn)) {
+            throw new BookValidationException("Invalid ISBN");
+        }
+        if (name == null || StringUtils.isBlank(name)) {
+            throw new BookValidationException("Book name cannot be null or empty");
+        }
+        if (pages == null || pages <= 0) {
+            throw new BookValidationException("The book must contains at least one page");
+        }
+        if (year == null || year > Year.now().getValue()) {
+            throw new BookValidationException("The publication year cannot be later than the current year");
+        }
+        BookEntity bookWithSameIsbn = repository.findByIsbn(isbn);
+        if (bookWithSameIsbn != null && !bookWithSameIsbn.getId().equals(id)) {
+            throw new BookValidationException("This ISBN is already used by another book");
+        }
     }
 
     public BookEntity getBookById(Long id) throws BookNotFoundException {

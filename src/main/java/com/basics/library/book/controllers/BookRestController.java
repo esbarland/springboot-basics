@@ -2,7 +2,7 @@ package com.basics.library.book.controllers;
 
 import com.basics.library.book.dto.BookDTO;
 import com.basics.library.book.models.BookEntity;
-import com.basics.library.book.models.exception.BookCreationException;
+import com.basics.library.book.models.exception.BookValidationException;
 import com.basics.library.book.services.BookService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -36,9 +36,22 @@ public class BookRestController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public BookDTO.PostOutput post(@Valid @RequestBody BookDTO.PostInput input) throws BookCreationException {
+    public BookDTO.PostOutput post(@Valid @RequestBody BookDTO.PostInput input) throws BookValidationException {
         BookEntity createdBook = service.createBook(input.getName(), input.getIsbn(), input.getPages(), input.getYear(), input.getDescription());
         return toOutput(createdBook);
+    }
+
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public BookDTO.PostOutput put(@PathVariable Long id, @Valid @RequestBody BookDTO.PostInput input) throws BookValidationException {
+        BookEntity updatedBook = service.updateBook(id, input.getName(), input.getIsbn(), input.getPages(), input.getYear(), input.getDescription());
+        return toOutput(updatedBook);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        service.deleteBook(id);
     }
 
     private BookDTO.PostOutput toOutput(BookEntity book) {

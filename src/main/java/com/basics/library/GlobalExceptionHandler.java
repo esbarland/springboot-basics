@@ -1,6 +1,6 @@
 package com.basics.library;
 
-import com.basics.library.book.models.exception.BookCreationException;
+import com.basics.library.book.models.exception.BookValidationException;
 import com.basics.library.book.models.exception.BookNotFoundException;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
@@ -30,8 +30,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(problem.getStatus()).body(problem);
     }
 
-    @ExceptionHandler(BookCreationException.class)
-    public ResponseEntity<ProblemDetail> handleBookCreationException(BookCreationException ex) {
+    @ExceptionHandler(BookValidationException.class)
+    public ResponseEntity<ProblemDetail> handleBookValidationException(BookValidationException ex) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(
                 HttpStatus.BAD_REQUEST,
                 ex.getMessage()

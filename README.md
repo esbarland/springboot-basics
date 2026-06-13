@@ -4,7 +4,7 @@ Projet d'apprentissage des fondamentaux de **Spring Boot** : une petite API REST
 
 ## Aperçu
 
-L'application expose une API REST permettant de créer des livres et de les persister en base de données MySQL via JPA/Hibernate. Le code illustre une architecture en couches (controller → service → repository), l'utilisation de DTO, la validation des données et une gestion d'erreurs centralisée.
+L'application expose une API REST permettant de gérer des livres (CRUD) et de les persister en base de données MySQL via JPA/Hibernate. Le code illustre une architecture en couches (controller → service → repository), l'utilisation de DTO, la validation des données et une gestion d'erreurs centralisée.
 
 ## Stack technique
 
@@ -35,7 +35,8 @@ com.basics.library
     ├── models
     │   ├── BookEntity             # Entité JPA mappée sur la table `book`
     │   └── exception
-    │       └── BookCreationException
+    │       ├── BookValidationException
+    │       └── BookNotFoundException
     └── dto
         └── BookDTO                # DTO d'entrée/sortie (PostInput / PostOutput)
 ```
@@ -44,37 +45,69 @@ com.basics.library
 
 Base path : `/book`
 
-### `POST /book`
-Crée un nouveau livre.
+> **Documentation interactive** — une fois l'application démarrée, la documentation
+> complète et navigable est générée automatiquement (OpenAPI 3 / Swagger UI) :
+> - Swagger UI : [`http://localhost:8080/swagger-ui.html`](http://localhost:8080/swagger-ui.html)
+> - Spécification OpenAPI (JSON) : [`http://localhost:8080/v3/api-docs`](http://localhost:8080/v3/api-docs)
+
+| Méthode | URL | Description | Succès |
+|---|---|---|---|
+| `GET` | `/book` | Liste tous les livres | `200 OK` |
+| `GET` | `/book/{id}` | Récupère un livre par son id | `200 OK` |
+| `POST` | `/book` | Crée un livre | `201 Created` |
+| `PUT` | `/book/{id}` | Met à jour un livre existant | `200 OK` |
+| `DELETE` | `/book/{id}` | Supprime un livre | `204 No Content` |
+
+### `POST /book` — création
 
 **Corps de la requête** (`BookDTO.PostInput`) :
 ```json
 {
   "name": "Le Petit Prince",
-  "pages": 96
+  "isbn": "978-2-07-040850-4",
+  "pages": 96,
+  "year": 1943,
+  "description": "Conte poétique et philosophique."
 }
 ```
 - `name` : obligatoire, non vide (`@NotNull`, `@NotBlank`)
+- `isbn` : obligatoire, non vide (`@NotNull`, `@NotBlank`)
 - `pages` : obligatoire (`@NotNull`)
+- `year` : obligatoire (`@NotNull`)
+- `description` : optionnel
 
 **Réponse** — `201 Created` (`BookDTO.PostOutput`) :
 ```json
 {
   "id": 1,
   "name": "Le Petit Prince",
-  "pages": 96
+  "isbn": "978-2-07-040850-4",
+  "pages": 96,
+  "year": 1943,
+  "description": "Conte poétique et philosophique."
 }
 ```
 
-**Règles métier** (validées dans `BookService`) :
+### `PUT /book/{id}` — mise à jour
+
+Réutilise le même corps que la création (`BookDTO.PostInput`), l'id étant fourni dans l'URL. Renvoie `200 OK` avec le livre mis à jour, ou `404 Not Found` si l'id n'existe pas.
+
+### `GET /book` et `GET /book/{id}` — lecture
+
+`GET /book` renvoie la liste complète des livres ; `GET /book/{id}` renvoie un livre précis (`404 Not Found` si absent).
+
+### `DELETE /book/{id}` — suppression
+
+Supprime le livre correspondant et renvoie `204 No Content`, ou `404 Not Found` si l'id n'existe pas.
+
+**Règles métier** (validées dans `BookService` à la création et à la mise à jour) :
 - Le nom ne peut être ni nul ni vide.
+- L'ISBN ne peut être ni nul ni vide et doit être un ISBN-13 valide (13 chiffres).
 - Le nombre de pages doit être supérieur à 0.
-- Un livre identique (même nom **et** même nombre de pages) ne peut pas être créé en double.
+- L'année de publication ne peut pas être postérieure à l'année courante.
+- L'ISBN doit être unique : il ne peut pas être déjà utilisé par un autre livre.
 
-En cas de violation, une `BookCreationException` est levée et renvoie un `400 Bad Request`.
-
-### `GET /book`
-Endpoint de démonstration. Attend les paramètres `name` et `pages`, renvoie `200 OK`.
+En cas de violation, une `BookValidationException` est levée et renvoie un `400 Bad Request`.
 
 ## Gestion d'erreurs
 
@@ -82,8 +115,9 @@ Endpoint de démonstration. Attend les paramètres `name` et `pages`, renvoie `2
 
 | Exception | Code HTTP |
 |---|---|
-| `BookCreationException` | `400 Bad Request` |
+| `BookValidationException` | `400 Bad Request` |
 | `BadRequestException` | `400 Bad Request` |
+| `BookNotFoundException` | `404 Not Found` |
 | `Exception` (fallback) | `500 Internal Server Error` |
 
 ## Configuration
@@ -125,7 +159,8 @@ L'API est ensuite disponible sur `http://localhost:8080/book`.
 
 Ce projet « basics » sert de support pédagogique et couvre :
 - la création d'un `@RestController` avec JPA ;
+- la mise en place d'un CRUD complet (création, lecture, mise à jour, suppression) ;
 - la séparation en couches (arborescence + service) ;
-- l'utilisation d'un DTO pour l'ajout d'un livre ;
+- l'utilisation de DTO d'entrée/sortie ;
 - la gestion d'erreurs centralisée ;
 - les codes de retour HTTP et la validation des données.
