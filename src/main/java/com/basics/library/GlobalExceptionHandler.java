@@ -2,6 +2,7 @@ package com.basics.library;
 
 import com.basics.library.book.models.exception.BookValidationException;
 import com.basics.library.book.models.exception.BookNotFoundException;
+import com.basics.library.book.models.exception.InvalidRatingException;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -43,6 +44,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ProblemDetail> handleBookNotFoundException(BookNotFoundException ex) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(
                 HttpStatus.NOT_FOUND,
+                ex.getMessage()
+        );
+        return ResponseEntity.status(problem.getStatus()).body(problem);
+    }
+
+    @ExceptionHandler(InvalidRatingException.class)
+    public ResponseEntity<ProblemDetail> handleBookInvalidRating(InvalidRatingException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
                 ex.getMessage()
         );
         return ResponseEntity.status(problem.getStatus()).body(problem);

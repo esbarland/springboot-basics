@@ -3,6 +3,7 @@ package com.basics.library.book.services;
 import com.basics.library.book.models.BookEntity;
 import com.basics.library.book.models.exception.BookValidationException;
 import com.basics.library.book.models.exception.BookNotFoundException;
+import com.basics.library.book.models.exception.InvalidRatingException;
 import com.basics.library.book.persistence.BookRepository;
 import io.micrometer.common.util.StringUtils;
 import org.springframework.stereotype.Service;
@@ -19,16 +20,18 @@ public class BookService {
         this.repository = repository;
     }
 
-    public BookEntity createBook(String name, String isbn, Integer pages, Integer year, String description) throws BookValidationException {
+    public BookEntity createBook(String name, String isbn, Integer pages, Integer year, String description, Integer rating) throws BookValidationException {
         validateBook(null, name, isbn, pages, year);
-        BookEntity book = BookEntity.builder().isbn(isbn).name(name).pages(pages).year(year).description(description).build();
+        validateRating(rating);
+        BookEntity book = BookEntity.builder().isbn(isbn).name(name).pages(pages).year(year).description(description).rating(rating).build();
         return repository.save(book);
     }
 
-    public BookEntity updateBook(Long id, String name, String isbn, Integer pages, Integer year, String description) throws BookNotFoundException, BookValidationException {
+    public BookEntity updateBook(Long id, String name, String isbn, Integer pages, Integer year, String description, Integer rating) throws BookNotFoundException, BookValidationException {
         BookEntity existing = repository.findById(id)
                 .orElseThrow(() -> new BookNotFoundException("No book found with this id"));
         validateBook(id, name, isbn, pages, year);
+        validateRating(rating);
         return repository.save(BookEntity.builder()
                 .id(existing.getId())
                 .isbn(isbn)
@@ -36,7 +39,18 @@ public class BookService {
                 .pages(pages)
                 .year(year)
                 .description(description)
+                .rating(rating)
                 .build());
+    }
+
+    public BookEntity rateBook(Long id, Integer rating) throws BookNotFoundException, InvalidRatingException {
+        if (rating == null) {
+            throw new InvalidRatingException("The rating must be between 1 and 5 stars");
+        }
+        validateRating(rating);
+        BookEntity book = getBookById(id);
+        book.setRating(rating);
+        return repository.save(book);
     }
 
     public void deleteBook(Long id) throws BookNotFoundException {
@@ -63,6 +77,12 @@ public class BookService {
         BookEntity bookWithSameIsbn = repository.findByIsbn(isbn);
         if (bookWithSameIsbn != null && !bookWithSameIsbn.getId().equals(id)) {
             throw new BookValidationException("This ISBN is already used by another book");
+        }
+    }
+
+    private void validateRating(Integer rating) throws InvalidRatingException {
+        if (rating != null && (rating < 1 || rating > 5)) {
+            throw new InvalidRatingException("The rating must be between 1 and 5 stars");
         }
     }
 

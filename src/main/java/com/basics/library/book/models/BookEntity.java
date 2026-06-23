@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @AllArgsConstructor
@@ -27,4 +28,7 @@ public class BookEntity {
     Integer pages;
 
     String description;
+
+    @Setter
+    Integer rating;
 }

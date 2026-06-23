@@ -37,14 +37,14 @@ public class BookRestController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public BookDTO.PostOutput post(@Valid @RequestBody BookDTO.PostInput input) throws BookValidationException {
-        BookEntity createdBook = service.createBook(input.getName(), input.getIsbn(), input.getPages(), input.getYear(), input.getDescription());
+        BookEntity createdBook = service.createBook(input.getName(), input.getIsbn(), input.getPages(), input.getYear(), input.getDescription(), input.getRating());
         return toOutput(createdBook);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public BookDTO.PostOutput put(@PathVariable Long id, @Valid @RequestBody BookDTO.PostInput input) throws BookValidationException {
-        BookEntity updatedBook = service.updateBook(id, input.getName(), input.getIsbn(), input.getPages(), input.getYear(), input.getDescription());
+        BookEntity updatedBook = service.updateBook(id, input.getName(), input.getIsbn(), input.getPages(), input.getYear(), input.getDescription(), input.getRating());
         return toOutput(updatedBook);
     }
 
@@ -52,6 +52,12 @@ public class BookRestController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
         service.deleteBook(id);
+    }
+
+    @PutMapping("/{id}/rating")
+    @ResponseStatus(HttpStatus.OK)
+    public BookDTO.PostOutput rate(@PathVariable Long id, @Valid @RequestBody BookDTO.RatingInput input) {
+        return toOutput(service.rateBook(id, input.getRating()));
     }
 
     private BookDTO.PostOutput toOutput(BookEntity book) {
@@ -62,6 +68,7 @@ public class BookRestController {
                 .pages(book.getPages())
                 .year(book.getYear())
                 .description(book.getDescription())
+                .rating(book.getRating())
                 .build();
     }
 }
