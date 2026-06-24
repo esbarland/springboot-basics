@@ -1,11 +1,7 @@
 package com.basics.library.book.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @AllArgsConstructor
@@ -23,11 +19,19 @@ public class BookEntity {
 
     String name;
 
+    String author;
+
     Integer year;
 
     Integer pages;
 
     String description;
+
+    @Enumerated(EnumType.STRING)
+    BookCategory category;
+
+    @Enumerated(EnumType.STRING)
+    BookStatus status;
 
     @Setter
     Integer rating;

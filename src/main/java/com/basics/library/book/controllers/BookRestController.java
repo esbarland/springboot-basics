@@ -37,14 +37,14 @@ public class BookRestController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public BookDTO.PostOutput post(@Valid @RequestBody BookDTO.PostInput input) throws BookValidationException {
-        BookEntity createdBook = service.createBook(input.getName(), input.getIsbn(), input.getPages(), input.getYear(), input.getDescription(), input.getRating());
+        BookEntity createdBook = service.createBook(input.getName(), input.getAuthor(), input.getIsbn(), input.getPages(), input.getYear(), input.getDescription(), input.getRating(), input.getCategory(), input.getStatus());
         return toOutput(createdBook);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public BookDTO.PostOutput put(@PathVariable Long id, @Valid @RequestBody BookDTO.PostInput input) throws BookValidationException {
-        BookEntity updatedBook = service.updateBook(id, input.getName(), input.getIsbn(), input.getPages(), input.getYear(), input.getDescription(), input.getRating());
+        BookEntity updatedBook = service.updateBook(id, input.getName(), input.getAuthor(), input.getIsbn(), input.getPages(), input.getYear(), input.getDescription(), input.getRating(), input.getCategory(), input.getStatus());
         return toOutput(updatedBook);
     }
 
@@ -64,10 +64,13 @@ public class BookRestController {
         return BookDTO.PostOutput.builder()
                 .id(book.getId())
                 .name(book.getName())
+                .author(book.getAuthor())
                 .isbn(book.getIsbn())
                 .pages(book.getPages())
                 .year(book.getYear())
                 .description(book.getDescription())
+                .category(book.getCategory())
+                .status(book.getStatus())
                 .rating(book.getRating())
                 .build();
     }

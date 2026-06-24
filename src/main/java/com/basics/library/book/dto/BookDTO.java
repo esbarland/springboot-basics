@@ -1,5 +1,7 @@
 package com.basics.library.book.dto;
 
+import com.basics.library.book.models.BookCategory;
+import com.basics.library.book.models.BookStatus;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -18,6 +20,8 @@ public class BookDTO {
         @NotBlank
         String name;
 
+        String author;
+
         @NotNull
         @NotBlank
         String isbn;
@@ -29,6 +33,10 @@ public class BookDTO {
         Integer year;
 
         String description;
+
+        BookCategory category;
+
+        BookStatus status;
 
         @Min(1)
         @Max(5)
@@ -51,10 +59,13 @@ public class BookDTO {
     public static class PostOutput {
         Long id;
         String name;
+        String author;
         String isbn;
         Integer pages;
         Integer year;
         String description;
+        BookCategory category;
+        BookStatus status;
         Integer rating;
     }
 }

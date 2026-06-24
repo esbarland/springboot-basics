@@ -1,7 +1,7 @@
 package com.basics.library;
 
-import com.basics.library.book.models.exception.BookValidationException;
 import com.basics.library.book.models.exception.BookNotFoundException;
+import com.basics.library.book.models.exception.BookValidationException;
 import com.basics.library.book.models.exception.InvalidRatingException;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;

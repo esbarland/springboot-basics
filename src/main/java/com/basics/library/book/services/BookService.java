@@ -1,8 +1,10 @@
 package com.basics.library.book.services;
 
+import com.basics.library.book.models.BookCategory;
 import com.basics.library.book.models.BookEntity;
-import com.basics.library.book.models.exception.BookValidationException;
+import com.basics.library.book.models.BookStatus;
 import com.basics.library.book.models.exception.BookNotFoundException;
+import com.basics.library.book.models.exception.BookValidationException;
 import com.basics.library.book.models.exception.InvalidRatingException;
 import com.basics.library.book.persistence.BookRepository;
 import io.micrometer.common.util.StringUtils;
@@ -20,25 +22,30 @@ public class BookService {
         this.repository = repository;
     }
 
-    public BookEntity createBook(String name, String isbn, Integer pages, Integer year, String description, Integer rating) throws BookValidationException {
+    public BookEntity createBook(String name, String author, String isbn, Integer pages, Integer year, String description, Integer rating, BookCategory category, BookStatus status) throws BookValidationException {
         validateBook(null, name, isbn, pages, year);
         validateRating(rating);
-        BookEntity book = BookEntity.builder().isbn(isbn).name(name).pages(pages).year(year).description(description).rating(rating).build();
+        BookStatus effectiveStatus = (status != null) ? status : BookStatus.TO_READ;
+        BookEntity book = BookEntity.builder().isbn(isbn).name(name).author(author).pages(pages).year(year).description(description).category(category).status(effectiveStatus).rating(rating).build();
         return repository.save(book);
     }
 
-    public BookEntity updateBook(Long id, String name, String isbn, Integer pages, Integer year, String description, Integer rating) throws BookNotFoundException, BookValidationException {
+    public BookEntity updateBook(Long id, String name, String author, String isbn, Integer pages, Integer year, String description, Integer rating, BookCategory category, BookStatus status) throws BookNotFoundException, BookValidationException {
         BookEntity existing = repository.findById(id)
                 .orElseThrow(() -> new BookNotFoundException("No book found with this id"));
         validateBook(id, name, isbn, pages, year);
         validateRating(rating);
+        BookStatus effectiveStatus = (status != null) ? status : BookStatus.TO_READ;
         return repository.save(BookEntity.builder()
                 .id(existing.getId())
                 .isbn(isbn)
                 .name(name)
+                .author(author)
                 .pages(pages)
                 .year(year)
                 .description(description)
+                .category(category)
+                .status(effectiveStatus)
                 .rating(rating)
                 .build());
     }
