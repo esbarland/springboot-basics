@@ -98,8 +98,11 @@ public class BookService {
                 .orElseThrow(() -> new BookNotFoundException("No book found this id"));
     }
 
-    public List<BookEntity> getAllBooks() {
-        return repository.findAll();
+    public List<BookEntity> getAllBooks(String search) {
+        if (StringUtils.isBlank(search)) {
+            return repository.findAll();
+        }
+        return repository.search(search);
     }
 
     /**

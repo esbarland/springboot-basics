@@ -24,8 +24,8 @@ public class BookRestController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<BookDTO.PostOutput> getAll() {
-        return service.getAllBooks().stream().map(this::toOutput).toList();
+    public List<BookDTO.PostOutput> getAll(@RequestParam(required = false) String search) {
+        return service.getAllBooks(search).stream().map(this::toOutput).toList();
     }
 
     @GetMapping("/{id}")
